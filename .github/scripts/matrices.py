@@ -92,9 +92,9 @@ config = [
 
 
 def build_matrix():
-    expanded = []
-    for target in targets:
-        expanded.append({"os": target.os_id, "target": target.target})
+    expanded = [
+        {"os": target.os_id, "target": target.target} for target in targets
+    ]
     print_json({"include": expanded})
 
 
