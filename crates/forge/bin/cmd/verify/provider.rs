@@ -1,5 +1,5 @@
 use super::{
-    etherscan::EtherscanVerificationProvider, sourcify::SourcifyVerificationProvider, VerifyArgs,
+    etherscan::EtherscanVerificationProvider, sourcify::SourcifyVerificationProvider, zksync::ZkSyncVerificationProvider,VerifyArgs,
     VerifyCheckArgs,
 };
 use async_trait::async_trait;
@@ -33,6 +33,7 @@ impl FromStr for VerificationProviderType {
             "e" | "etherscan" => Ok(VerificationProviderType::Etherscan),
             "s" | "sourcify" => Ok(VerificationProviderType::Sourcify),
             "b" | "blockscout" => Ok(VerificationProviderType::Blockscout),
+            "z" | "zksync" => Ok(VerificationProviderType::ZkSync),
             _ => Err(format!("Unknown provider: {s}")),
         }
     }
@@ -50,6 +51,9 @@ impl fmt::Display for VerificationProviderType {
             VerificationProviderType::Blockscout => {
                 write!(f, "blockscout")?;
             }
+            VerificationProviderType::ZkSync => {
+                write!(f, "zksync")?;
+            }
         };
         Ok(())
     }
@@ -61,6 +65,7 @@ pub enum VerificationProviderType {
     Etherscan,
     Sourcify,
     Blockscout,
+    ZkSync,
 }
 
 impl VerificationProviderType {
@@ -78,6 +83,9 @@ impl VerificationProviderType {
             }
             VerificationProviderType::Blockscout => {
                 Ok(Box::<EtherscanVerificationProvider>::default())
+            }
+            VerificationProviderType::ZkSync => {
+                Ok(Box::<ZkSyncVerificationProvider>::default())
             }
         }
     }
