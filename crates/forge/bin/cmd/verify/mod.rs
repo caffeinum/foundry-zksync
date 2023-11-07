@@ -16,7 +16,6 @@ pub mod provider;
 use provider::VerificationProvider;
 
 mod sourcify;
-mod zksync;
 
 /// Verification provider arguments
 #[derive(Debug, Clone, Parser)]
