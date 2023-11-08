@@ -1,23 +1,25 @@
+use crate::utils::get_cached_entry_by_name;
+use crate::cmd::verify::VerificationProvider;
 use super::{VerifyArgs, VerifyCheckArgs, etherscan::EtherscanVerificationProvider};
-use crate::cmd::{LoadConfig, forge::zksolc_manager::DEFAULT_ZKSOLC_VERSION};
 
-use cast::SimpleCast;
+use foundry_common::zksolc_manager::DEFAULT_ZKSOLC_VERSION;
 
-use crate::cmd::forge::verify::provider::VerificationProvider;
+use foundry_cli::utils::LoadConfig;
+// use crate::cmd::zkforge::verify::provider::VerificationProvider;
 // use crate::cmd::forge::verify::EtherscanVerificationProvider;
 use foundry_common::fs;
 use foundry_utils::Retry;
 use futures::FutureExt;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::PathBuf};
-use tracing::{warn};
+use tracing::warn;
 
 use ethers::{
     // abi::Function,
     etherscan::{
         // utils::lookup_compiler_version,
-        verify::{VerifyContract,CodeFormat},
-        Client,
+        verify::CodeFormat,
+        // Client,
     },
     // prelude::errors::EtherscanError,
     // solc::{artifacts::CompactContract, cache::CacheEntry, Project, Solc},
@@ -145,7 +147,7 @@ impl VerificationProvider for ZkSyncVerificationProvider {
     }
 
     async fn verify(&mut self, args: VerifyArgs) -> eyre::Result<()>{
-        let (verify_args) = self.prepare_request(&args).await?;
+        let verify_args = self.prepare_request(&args).await?;
 
         // trace!("submitting verification request {:?}", body);
         // println!("submitting verification request {:?}", body);
@@ -163,7 +165,8 @@ impl VerificationProvider for ZkSyncVerificationProvider {
                     println!(
                         "\nSubmitting verification for [{}] {:?}.",
                         args.contract.name,
-                        SimpleCast::to_checksum_address(&args.address)
+                        // SimpleCast::to_checksum_address(&args.address)
+                        args.address
                     );
                     let response = client
                         .post(args.verifier.verifier_url.as_deref().unwrap_or(ZKSYNC_URL))
@@ -289,7 +292,7 @@ impl ZkSyncVerificationProvider {
         }
 
         let cache = project.read_cache_file()?;
-        let (path, entry) = crate::cmd::get_cached_entry_by_name(&cache, &args.contract.name)?;
+        let (path, entry) = get_cached_entry_by_name(&cache, &args.contract.name)?;
 
         if entry.solc_config.settings.metadata.is_none() {
             eyre::bail!(
